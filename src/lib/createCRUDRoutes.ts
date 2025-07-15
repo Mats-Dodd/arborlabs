@@ -205,6 +205,14 @@ export function createCRUDRoutes(config: CRUDConfig) {
             }),
             "The created item"
           ),
+          [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+            createMessageObjectSchema("Unauthorized"),
+            "Unauthorized"
+          ),
+          [HttpStatusCodes.FORBIDDEN]: jsonContent(
+            createMessageObjectSchema("Forbidden"),
+            "Forbidden"
+          ),
           [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
             createErrorSchema(schema.create),
             "The validation error(s)"
@@ -212,9 +220,9 @@ export function createCRUDRoutes(config: CRUDConfig) {
         },
       }),
       async (c) => {
-        const session = await auth.api.getSession({ headers: c.req.header() })
+        const session = await auth.api.getSession({ headers: c.req.raw.headers })
         if (!session) {
-          return c.json({ error: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED)
+          return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED)
         }
 
         const body = c.req.valid("json")
@@ -224,12 +232,14 @@ export function createCRUDRoutes(config: CRUDConfig) {
             access.create(session, body)
           }
         } catch (error) {
-          return c.json({ error: error.message }, HttpStatusCodes.FORBIDDEN)
+          const message = error instanceof Error ? error.message : "Access denied"
+          return c.json({ message }, HttpStatusCodes.FORBIDDEN)
         }
 
         const result = await db.transaction(async (tx) => {
           const txid = await generateTxId(tx)
-          const [newItem] = await tx.insert(table).values(body).returning()
+          const insertResult = await tx.insert(table).values(body).returning() as any[]
+          const newItem = insertResult[0]
           return { item: newItem, txid }
         })
 
@@ -252,6 +262,14 @@ export function createCRUDRoutes(config: CRUDConfig) {
             }),
             "The updated item"
           ),
+          [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+            createMessageObjectSchema("Unauthorized"),
+            "Unauthorized"
+          ),
+          [HttpStatusCodes.FORBIDDEN]: jsonContent(
+            createMessageObjectSchema("Forbidden"),
+            "Forbidden"
+          ),
           [HttpStatusCodes.NOT_FOUND]: jsonContent(
             createMessageObjectSchema(HttpStatusPhrases.NOT_FOUND),
             HttpStatusPhrases.NOT_FOUND
@@ -263,9 +281,9 @@ export function createCRUDRoutes(config: CRUDConfig) {
         },
       }),
       async (c) => {
-        const session = await auth.api.getSession({ headers: c.req.header() })
+        const session = await auth.api.getSession({ headers: c.req.raw.headers })
         if (!session) {
-          return c.json({ error: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED)
+          return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED)
         }
 
         const { id } = c.req.valid("param")
@@ -275,22 +293,24 @@ export function createCRUDRoutes(config: CRUDConfig) {
 
         try {
           if (access?.update) {
-            const accessResult = access.update(session, id, body)
+            const accessResult = access.update(session, String(id), body)
             if (accessResult !== true) {
-              whereCondition = and(whereCondition, accessResult)
+              whereCondition = and(whereCondition, accessResult) || whereCondition
             }
           }
         } catch (error) {
-          return c.json({ error: error.message }, HttpStatusCodes.FORBIDDEN)
+          const message = error instanceof Error ? error.message : "Access denied"
+          return c.json({ message }, HttpStatusCodes.FORBIDDEN)
         }
 
         const result = await db.transaction(async (tx) => {
           const txid = await generateTxId(tx)
-          const [updatedItem] = await tx
+          const updateResult = await tx
             .update(table)
             .set(body)
             .where(whereCondition)
-            .returning()
+            .returning() as any[]
+          const updatedItem = updateResult[0]
           return { item: updatedItem, txid }
         })
 
@@ -319,15 +339,24 @@ export function createCRUDRoutes(config: CRUDConfig) {
             }),
             "The deleted item"
           ),
-          [HttpStatusCodes.NOT_FOUND]: {
-            description: "Item not found",
-          },
+          [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+            createMessageObjectSchema("Unauthorized"),
+            "Unauthorized"
+          ),
+          [HttpStatusCodes.FORBIDDEN]: jsonContent(
+            createMessageObjectSchema("Forbidden"),
+            "Forbidden"
+          ),
+          [HttpStatusCodes.NOT_FOUND]: jsonContent(
+            createMessageObjectSchema("Item not found"),
+            "Item not found"
+          ),
         },
       }),
       async (c) => {
-        const session = await auth.api.getSession({ headers: c.req.header() })
+        const session = await auth.api.getSession({ headers: c.req.raw.headers })
         if (!session) {
-          return c.json({ error: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED)
+          return c.json({ message: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED)
         }
 
         const { id } = c.req.valid("param")
@@ -336,26 +365,28 @@ export function createCRUDRoutes(config: CRUDConfig) {
 
         try {
           if (access?.delete) {
-            const accessResult = access.delete(session, id)
+            const accessResult = access.delete(session, String(id))
             if (accessResult !== true) {
-              whereCondition = and(whereCondition, accessResult)
+              whereCondition = and(whereCondition, accessResult) || whereCondition
             }
           }
         } catch (error) {
-          return c.json({ error: error.message }, HttpStatusCodes.FORBIDDEN)
+          const message = error instanceof Error ? error.message : "Access denied"
+          return c.json({ message }, HttpStatusCodes.FORBIDDEN)
         }
 
         const result = await db.transaction(async (tx) => {
           const txid = await generateTxId(tx)
-          const [deletedItem] = await tx
+          const deleteResult = await tx
             .delete(table)
             .where(whereCondition)
-            .returning()
+            .returning() as any[]
+          const deletedItem = deleteResult[0]
           return { item: deletedItem, txid }
         })
 
         if (!result.item) {
-          return c.json({ error: "Item not found" }, HttpStatusCodes.NOT_FOUND)
+          return c.json({ message: "Item not found" }, HttpStatusCodes.NOT_FOUND)
         }
 
         return c.json(result, HttpStatusCodes.OK)
