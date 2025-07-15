@@ -4,7 +4,7 @@ Auto
 
 Framework
 
-![React logo](data:image/svg+xml,%3csvg%20viewBox='-11.5%20-10.23%2023%2020.46'%20xmlns='http://www.w3.org/2000/svg'%3e%3ccircle%20fill='%2361dafb'%20r='2.05'/%3e%3cg%20fill='none'%20stroke='%2361dafb'%3e%3cellipse%20rx='11'%20ry='4.2'/%3e%3cellipse%20rx='11'%20ry='4.2'%20transform='matrix(.5%20.8660254%20-.8660254%20.5%200%200)'/%3e%3cellipse%20rx='11'%20ry='4.2'%20transform='matrix(-.5%20.8660254%20-.8660254%20-.5%200%200)'/%3e%3c/g%3e%3c/svg%3e)React
+![React logo](<data:image/svg+xml,%3csvg%20viewBox='-11.5%20-10.23%2023%2020.46'%20xmlns='http://www.w3.org/2000/svg'%3e%3ccircle%20fill='%2361dafb'%20r='2.05'/%3e%3cg%20fill='none'%20stroke='%2361dafb'%3e%3cellipse%20rx='11'%20ry='4.2'/%3e%3cellipse%20rx='11'%20ry='4.2'%20transform='matrix(.5%20.8660254%20-.8660254%20.5%200%200)'/%3e%3cellipse%20rx='11'%20ry='4.2'%20transform='matrix(-.5%20.8660254%20-.8660254%20-.5%200%200)'/%3e%3c/g%3e%3c/svg%3e>)React
 
 Version
 
@@ -25,32 +25,32 @@ Menu
 Getting Started
 
 - [Overview\\
-\\
-core](https://tanstack.com/db/latest/docs/overview)
+  \\
+  core](https://tanstack.com/db/latest/docs/overview)
 - [Quick Start\\
-\\
-core](https://tanstack.com/db/latest/docs/quick-start)
+  \\
+  core](https://tanstack.com/db/latest/docs/quick-start)
 - [Installation\\
-\\
-core](https://tanstack.com/db/latest/docs/installation)
+  \\
+  core](https://tanstack.com/db/latest/docs/installation)
 - [React Adapter\\
-\\
-react](https://tanstack.com/db/latest/docs/framework/react/adapter)
+  \\
+  react](https://tanstack.com/db/latest/docs/framework/react/adapter)
 
 API Reference
 
 - [Core API Reference\\
-\\
-core](https://tanstack.com/db/latest/docs/reference/index)
+  \\
+  core](https://tanstack.com/db/latest/docs/reference/index)
 - [React Hooks\\
-\\
-react](https://tanstack.com/db/latest/docs/framework/react/reference/index)
+  \\
+  react](https://tanstack.com/db/latest/docs/framework/react/reference/index)
 
 Examples
 
 - [Todo List\\
-\\
-react](https://tanstack.com/db/latest/docs/framework/react/examples/todo)
+  \\
+  react](https://tanstack.com/db/latest/docs/framework/react/examples/todo)
 
 [TanStack](https://tanstack.com/) [DBv0](https://tanstack.com/db)
 
@@ -62,7 +62,7 @@ Search...
 
 Framework
 
-![React logo](data:image/svg+xml,%3csvg%20viewBox='-11.5%20-10.23%2023%2020.46'%20xmlns='http://www.w3.org/2000/svg'%3e%3ccircle%20fill='%2361dafb'%20r='2.05'/%3e%3cg%20fill='none'%20stroke='%2361dafb'%3e%3cellipse%20rx='11'%20ry='4.2'/%3e%3cellipse%20rx='11'%20ry='4.2'%20transform='matrix(.5%20.8660254%20-.8660254%20.5%200%200)'/%3e%3cellipse%20rx='11'%20ry='4.2'%20transform='matrix(-.5%20.8660254%20-.8660254%20-.5%200%200)'/%3e%3c/g%3e%3c/svg%3e)React
+![React logo](<data:image/svg+xml,%3csvg%20viewBox='-11.5%20-10.23%2023%2020.46'%20xmlns='http://www.w3.org/2000/svg'%3e%3ccircle%20fill='%2361dafb'%20r='2.05'/%3e%3cg%20fill='none'%20stroke='%2361dafb'%3e%3cellipse%20rx='11'%20ry='4.2'/%3e%3cellipse%20rx='11'%20ry='4.2'%20transform='matrix(.5%20.8660254%20-.8660254%20.5%200%200)'/%3e%3cellipse%20rx='11'%20ry='4.2'%20transform='matrix(-.5%20.8660254%20-.8660254%20-.5%200%200)'/%3e%3c/g%3e%3c/svg%3e>)React
 
 Version
 
@@ -79,32 +79,32 @@ Menu
 Getting Started
 
 - [Overview\\
-\\
-core](https://tanstack.com/db/latest/docs/overview)
+  \\
+  core](https://tanstack.com/db/latest/docs/overview)
 - [Quick Start\\
-\\
-core](https://tanstack.com/db/latest/docs/quick-start)
+  \\
+  core](https://tanstack.com/db/latest/docs/quick-start)
 - [Installation\\
-\\
-core](https://tanstack.com/db/latest/docs/installation)
+  \\
+  core](https://tanstack.com/db/latest/docs/installation)
 - [React Adapter\\
-\\
-react](https://tanstack.com/db/latest/docs/framework/react/adapter)
+  \\
+  react](https://tanstack.com/db/latest/docs/framework/react/adapter)
 
 API Reference
 
 - [Core API Reference\\
-\\
-core](https://tanstack.com/db/latest/docs/reference/index)
+  \\
+  core](https://tanstack.com/db/latest/docs/reference/index)
 - [React Hooks\\
-\\
-react](https://tanstack.com/db/latest/docs/framework/react/reference/index)
+  \\
+  react](https://tanstack.com/db/latest/docs/framework/react/reference/index)
 
 Examples
 
 - [Todo List\\
-\\
-react](https://tanstack.com/db/latest/docs/framework/react/examples/todo)
+  \\
+  react](https://tanstack.com/db/latest/docs/framework/react/examples/todo)
 
 On this page
 

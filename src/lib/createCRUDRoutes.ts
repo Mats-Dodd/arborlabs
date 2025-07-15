@@ -1,6 +1,8 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi"
 import { db } from "@/db/connection"
-import { eq, sql, and } from "drizzle-orm"
+import { eq, sql, and, SQL } from "drizzle-orm"
+import type { InferSelectModel, InferInsertModel } from "drizzle-orm"
+import { PgTable, PgColumn } from "drizzle-orm/pg-core"
 import * as HttpStatusCodes from "stoker/http-status-codes"
 import { jsonContent, jsonContentRequired } from "stoker/openapi/helpers"
 import createMessageObjectSchema from "stoker/openapi/schemas/create-message-object"
@@ -8,6 +10,29 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases"
 import { createErrorSchema } from "stoker/openapi/schemas"
 import IdParamsSchema from "stoker/openapi/schemas/id-params"
 import { auth } from "@/lib/auth"
+
+// Type for better-auth session
+type BetterAuthSession = {
+  user: {
+    id: string
+    email: string
+    name: string
+    emailVerified: boolean
+    image?: string | null
+    createdAt: Date
+    updatedAt: Date
+  }
+  session: {
+    id: string
+    userId: string
+    expiresAt: Date
+    createdAt: Date
+    updatedAt: Date
+    token: string
+    ipAddress?: string | null
+    userAgent?: string | null
+  }
+}
 
 /**
  * Generates a unique transaction ID for database operations
@@ -66,14 +91,14 @@ async function generateTxId(
  * })
  * ```
  */
-interface CRUDConfig {
+interface CRUDConfig<TTable extends PgTable> {
   /** Database table to perform operations on */
-  table: any
+  table: TTable
   /** Zod schemas for validation */
   schema: {
-    select: z.ZodSchema
-    create: z.ZodSchema
-    update: z.ZodSchema
+    select: z.ZodTypeAny
+    create: z.ZodTypeAny
+    update: z.ZodTypeAny
   }
   /** Base path for the API routes (e.g., "/api/todos") */
   basePath: string
@@ -81,7 +106,7 @@ interface CRUDConfig {
    * Function to generate Electric sync filter for user-specific data
    * @example `(session) => \`user_id = '\${session.user.id}'\``
    */
-  syncFilter?: (session: any) => string
+  syncFilter?: (session: BetterAuthSession) => string
   /** Access control configuration for CRUD operations */
   access?: {
     /**
@@ -100,7 +125,10 @@ interface CRUDConfig {
      * }
      * ```
      */
-    create?: (session: any, data: any) => true | never
+    create?: (
+      session: BetterAuthSession,
+      data: InferInsertModel<TTable>
+    ) => true | never
     /**
      * Update access control - return true to allow, drizzle condition to filter, throw error to deny
      * @param session - Better-auth session object
@@ -117,7 +145,11 @@ interface CRUDConfig {
      * )
      * ```
      */
-    update?: (session: any, id: string, data: any) => true | any
+    update?: (
+      session: BetterAuthSession,
+      id: string,
+      data: Partial<InferInsertModel<TTable>>
+    ) => true | SQL
     /**
      * Delete access control - return true to allow, drizzle condition to filter, throw error to deny
      * @param session - Better-auth session object
@@ -133,7 +165,7 @@ interface CRUDConfig {
      * }
      * ```
      */
-    delete?: (session: any, id: string) => true | any
+    delete?: (session: BetterAuthSession, id: string) => true | SQL
   }
 }
 
@@ -142,8 +174,19 @@ interface CRUDConfig {
  * @param config - Configuration object for the CRUD routes
  * @returns OpenAPIHono router with GET, POST, PUT, DELETE routes
  */
-export function createCRUDRoutes(config: CRUDConfig) {
+export function createCRUDRoutes<TTable extends PgTable>(
+  config: CRUDConfig<TTable>
+) {
   const { table, schema, basePath, syncFilter, access } = config
+
+  // Helper to get the id column - assumes table has an 'id' column
+  const getIdColumn = () => {
+    const tableWithId = table as TTable & { id: PgColumn }
+    if (!tableWithId.id) {
+      throw new Error(`Table must have an 'id' column`)
+    }
+    return tableWithId.id
+  }
 
   return new OpenAPIHono()
     .openapi(
@@ -205,6 +248,14 @@ export function createCRUDRoutes(config: CRUDConfig) {
             }),
             "The created item"
           ),
+          [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+            createMessageObjectSchema("Unauthorized"),
+            "Unauthorized"
+          ),
+          [HttpStatusCodes.FORBIDDEN]: jsonContent(
+            createMessageObjectSchema("Forbidden"),
+            "Forbidden"
+          ),
           [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
             createErrorSchema(schema.create),
             "The validation error(s)"
@@ -212,24 +263,35 @@ export function createCRUDRoutes(config: CRUDConfig) {
         },
       }),
       async (c) => {
-        const session = await auth.api.getSession({ headers: c.req.header() })
+        const session = await auth.api.getSession({
+          headers: c.req.raw.headers,
+        })
         if (!session) {
-          return c.json({ error: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED)
+          return c.json(
+            { message: "Unauthorized" },
+            HttpStatusCodes.UNAUTHORIZED
+          )
         }
 
         const body = c.req.valid("json")
 
         try {
           if (access?.create) {
-            access.create(session, body)
+            access.create(session, body as InferInsertModel<TTable>)
           }
         } catch (error) {
-          return c.json({ error: error.message }, HttpStatusCodes.FORBIDDEN)
+          const message =
+            error instanceof Error ? error.message : "Access denied"
+          return c.json({ message }, HttpStatusCodes.FORBIDDEN)
         }
 
         const result = await db.transaction(async (tx) => {
           const txid = await generateTxId(tx)
-          const [newItem] = await tx.insert(table).values(body).returning()
+          const insertResult = (await tx
+            .insert(table)
+            .values(body)
+            .returning()) as InferSelectModel<TTable>[]
+          const newItem = insertResult[0]
           return { item: newItem, txid }
         })
 
@@ -252,6 +314,14 @@ export function createCRUDRoutes(config: CRUDConfig) {
             }),
             "The updated item"
           ),
+          [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+            createMessageObjectSchema("Unauthorized"),
+            "Unauthorized"
+          ),
+          [HttpStatusCodes.FORBIDDEN]: jsonContent(
+            createMessageObjectSchema("Forbidden"),
+            "Forbidden"
+          ),
           [HttpStatusCodes.NOT_FOUND]: jsonContent(
             createMessageObjectSchema(HttpStatusPhrases.NOT_FOUND),
             HttpStatusPhrases.NOT_FOUND
@@ -263,34 +333,48 @@ export function createCRUDRoutes(config: CRUDConfig) {
         },
       }),
       async (c) => {
-        const session = await auth.api.getSession({ headers: c.req.header() })
+        const session = await auth.api.getSession({
+          headers: c.req.raw.headers,
+        })
         if (!session) {
-          return c.json({ error: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED)
+          return c.json(
+            { message: "Unauthorized" },
+            HttpStatusCodes.UNAUTHORIZED
+          )
         }
 
         const { id } = c.req.valid("param")
         const body = c.req.valid("json")
 
-        let whereCondition = eq(table.id, id)
+        const idColumn = getIdColumn()
+        let whereCondition = eq(idColumn, id)
 
         try {
           if (access?.update) {
-            const accessResult = access.update(session, id, body)
+            const accessResult = access.update(
+              session,
+              String(id),
+              body as Partial<InferInsertModel<TTable>>
+            )
             if (accessResult !== true) {
-              whereCondition = and(whereCondition, accessResult)
+              whereCondition =
+                and(whereCondition, accessResult) || whereCondition
             }
           }
         } catch (error) {
-          return c.json({ error: error.message }, HttpStatusCodes.FORBIDDEN)
+          const message =
+            error instanceof Error ? error.message : "Access denied"
+          return c.json({ message }, HttpStatusCodes.FORBIDDEN)
         }
 
         const result = await db.transaction(async (tx) => {
           const txid = await generateTxId(tx)
-          const [updatedItem] = await tx
+          const updateResult = (await tx
             .update(table)
             .set(body)
             .where(whereCondition)
-            .returning()
+            .returning()) as InferSelectModel<TTable>[]
+          const updatedItem = updateResult[0]
           return { item: updatedItem, txid }
         })
 
@@ -319,43 +403,65 @@ export function createCRUDRoutes(config: CRUDConfig) {
             }),
             "The deleted item"
           ),
-          [HttpStatusCodes.NOT_FOUND]: {
-            description: "Item not found",
-          },
+          [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+            createMessageObjectSchema("Unauthorized"),
+            "Unauthorized"
+          ),
+          [HttpStatusCodes.FORBIDDEN]: jsonContent(
+            createMessageObjectSchema("Forbidden"),
+            "Forbidden"
+          ),
+          [HttpStatusCodes.NOT_FOUND]: jsonContent(
+            createMessageObjectSchema("Item not found"),
+            "Item not found"
+          ),
         },
       }),
       async (c) => {
-        const session = await auth.api.getSession({ headers: c.req.header() })
+        const session = await auth.api.getSession({
+          headers: c.req.raw.headers,
+        })
         if (!session) {
-          return c.json({ error: "Unauthorized" }, HttpStatusCodes.UNAUTHORIZED)
+          return c.json(
+            { message: "Unauthorized" },
+            HttpStatusCodes.UNAUTHORIZED
+          )
         }
 
         const { id } = c.req.valid("param")
 
-        let whereCondition = eq(table.id, id)
+        const idColumn = getIdColumn()
+        let whereCondition = eq(idColumn, id)
 
         try {
           if (access?.delete) {
-            const accessResult = access.delete(session, id)
+            const accessResult = access.delete(session, String(id))
             if (accessResult !== true) {
-              whereCondition = and(whereCondition, accessResult)
+              whereCondition =
+                and(whereCondition, accessResult) || whereCondition
             }
           }
         } catch (error) {
-          return c.json({ error: error.message }, HttpStatusCodes.FORBIDDEN)
+          const message =
+            error instanceof Error ? error.message : "Access denied"
+          return c.json({ message }, HttpStatusCodes.FORBIDDEN)
         }
 
         const result = await db.transaction(async (tx) => {
           const txid = await generateTxId(tx)
-          const [deletedItem] = await tx
+          const deleteResult = (await tx
             .delete(table)
             .where(whereCondition)
-            .returning()
+            .returning()) as InferSelectModel<TTable>[]
+          const deletedItem = deleteResult[0]
           return { item: deletedItem, txid }
         })
 
         if (!result.item) {
-          return c.json({ error: "Item not found" }, HttpStatusCodes.NOT_FOUND)
+          return c.json(
+            { message: "Item not found" },
+            HttpStatusCodes.NOT_FOUND
+          )
         }
 
         return c.json(result, HttpStatusCodes.OK)

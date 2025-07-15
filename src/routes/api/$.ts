@@ -9,32 +9,32 @@ import {
 } from "@/db/schema"
 import { eq } from "drizzle-orm"
 
-const routes = [
-  createCRUDRoutes({
-    table: todosTable,
-    schema: {
-      select: selectTodoSchema,
-      create: createTodoSchema,
-      update: updateTodoSchema,
-    },
-    basePath: "/api/todos",
-    syncFilter: (session) => `user_id = '${session.user.id}'`,
-    access: {
-      create: (_session, _data) => true,
-      update: (session, _id, _data) => eq(todosTable.user_id, session.user.id),
-      delete: (session, _id) => eq(todosTable.user_id, session.user.id),
-    },
-  }),
-] as const
 const app = new OpenAPIHono()
 
-routes.forEach((route) => app.route(`/`, route))
+const todosRoutes = createCRUDRoutes({
+  table: todosTable,
+  schema: {
+    select: selectTodoSchema,
+    create: createTodoSchema,
+    update: updateTodoSchema,
+  },
+  basePath: "/todos",
+  syncFilter: (session) => `user_id = '${session.user.id}'`,
+  access: {
+    create: (_session, _data) => true,
+    update: (session, _id, _data) => eq(todosTable.user_id, session.user.id),
+    delete: (session, _id) => eq(todosTable.user_id, session.user.id),
+  },
+})
+
+// Chain the routes properly for RPC type inference
+const routes = app.route("/api", todosRoutes)
 
 const serve = ({ request }: { request: Request }) => {
-  return app.fetch(request)
+  return routes.fetch(request)
 }
 
-export type AppType = (typeof routes)[number]
+export type AppType = typeof routes
 
 export const ServerRoute = createServerFileRoute("/api/$").methods({
   GET: serve,

@@ -126,11 +126,7 @@ function Layout() {
           )}
 
           <div>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              variant="default"
-            >
+            <Button type="submit" disabled={isLoading} variant="default">
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </div>

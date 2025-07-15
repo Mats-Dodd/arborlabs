@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useLiveQuery, createCollection, Query } from "@tanstack/react-db"
+import { useLiveQuery } from "@tanstack/react-db"
 import { useState } from "react"
 import { authClient } from "@/lib/auth-client"
 import { type Todo } from "@/db/schema"
@@ -34,7 +34,7 @@ function App() {
   const addTodo = () => {
     if (newTodoText.trim()) {
       todoCollection.insert({
-        user_id: session?.user.id!,
+        user_id: session?.user.id ?? "",
         id: Math.floor(Math.random() * 100000),
         text: newTodoText.trim(),
         completed: false,
@@ -69,10 +69,7 @@ function App() {
             onKeyDown={(e) => e.key === "Enter" && addTodo()}
             placeholder="Add a new todo..."
           />
-          <Button
-            onClick={addTodo}
-            variant="default"
-          >
+          <Button onClick={addTodo} variant="default">
             Add
           </Button>
         </div>
@@ -98,10 +95,7 @@ function App() {
               >
                 {todo.text}
               </span>
-              <Button
-                onClick={() => deleteTodo(todo.id)}
-                variant="destructive"
-              >
+              <Button onClick={() => deleteTodo(todo.id)} variant="destructive">
                 Delete
               </Button>
             </li>
