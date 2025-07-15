@@ -11,7 +11,12 @@
     "lint:check": "eslint .",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:setup": "npm run db:generate && npm run db:migrate"
   },
   "dependencies": {
     "@electric-sql/client": "^1.0.6",
