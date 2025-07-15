@@ -4,6 +4,7 @@ import { useState } from "react"
 import { authClient } from "@/lib/auth-client"
 import { type Todo } from "@/db/schema"
 import { todoCollection } from "@/lib/collections"
+import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute(`/_authenticated/`)({
   component: App,
@@ -68,12 +69,12 @@ function App() {
             placeholder="Add a new todo..."
             className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <button
+          <Button
             onClick={addTodo}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            variant="default"
           >
             Add
-          </button>
+          </Button>
         </div>
 
         <ul className="space-y-2">
@@ -97,12 +98,12 @@ function App() {
               >
                 {todo.text}
               </span>
-              <button
+              <Button
                 onClick={() => deleteTodo(todo.id)}
-                className="px-2 py-1 text-red-600 hover:bg-red-50 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                variant="destructive"
               >
                 Delete
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
