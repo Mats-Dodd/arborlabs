@@ -5,6 +5,7 @@ import { authClient } from "@/lib/auth-client"
 import { type Todo } from "@/db/schema"
 import { todoCollection } from "@/lib/collections"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 export const Route = createFileRoute(`/_authenticated/`)({
   component: App,
@@ -61,13 +62,12 @@ function App() {
         </h1>
 
         <div className="flex gap-2 mb-4">
-          <input
+          <Input
             type="text"
             value={newTodoText}
             onChange={(e) => setNewTodoText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addTodo()}
             placeholder="Add a new todo..."
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Button
             onClick={addTodo}
