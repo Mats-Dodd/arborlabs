@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { Outlet } from "@tanstack/react-router"
 import { authClient } from "@/lib/auth-client"
+import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
@@ -46,12 +47,12 @@ function AuthenticatedLayout() {
               <span className="text-sm text-gray-700">
                 {session.user.email}
               </span>
-              <button
+              <Button
                 onClick={handleLogout}
-                className="text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
+                variant="outline"
               >
                 Sign out
-              </button>
+              </Button>
             </div>
           </div>
         </div>
