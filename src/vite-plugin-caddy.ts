@@ -187,7 +187,7 @@ ${networkIP} {
           vitePort = port
         }
 
-        const result = originalListen.call(this, port, ...args)
+        const result = originalListen.call(this, port, ...(args as [boolean?]))
 
         // Try to start Caddy after server is listening
         if (result && typeof result.then === "function") {
