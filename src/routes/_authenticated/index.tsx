@@ -1,9 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import {
-  useLiveQuery,
-  createCollection,
-  Query,
-} from "@tanstack/react-db"
+import { useLiveQuery, createCollection, Query } from "@tanstack/react-db"
 import { useState } from "react"
 import { authClient } from "@/lib/auth-client"
 import { type Todo } from "@/db/schema"
