@@ -3,6 +3,7 @@ import { electricCollectionOptions } from "@tanstack/db-collections"
 import { authClient } from "@/lib/auth-client"
 import { selectTodoSchema } from "@/db/schema"
 import { getClient } from "@/api-client"
+
 const client = getClient()
 
 export const todoCollection = createCollection(
@@ -19,8 +20,14 @@ export const todoCollection = createCollection(
         table: "todos",
         // Set the user_id as a param as a cache buster for when
         // you log in and out to test different accounts.
-        user_id: async () =>
-          authClient.getSession().then((session) => session.data?.user.id)!,
+        user_id: async () => {
+          const session = await authClient.getSession()
+          const userId = session.data?.user?.id
+          if (!userId) {
+            throw new Error("User not authenticated")
+          }
+          return userId
+        },
       },
       parser: {
         // Parse timestamp columns into JavaScript Date objects

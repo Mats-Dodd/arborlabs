@@ -47,10 +47,7 @@ function AuthenticatedLayout() {
               <span className="text-sm text-gray-700">
                 {session.user.email}
               </span>
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-              >
+              <Button onClick={handleLogout} variant="outline">
                 Sign out
               </Button>
             </div>
