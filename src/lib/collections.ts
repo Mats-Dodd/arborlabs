@@ -130,6 +130,7 @@ export const collectionCollection = createCollection(
       const result = await client.api.collections.$post({
         json: {
           name: newCollection.name,
+          user_id: newCollection.user_id,
           metadata: newCollection.metadata,
         },
       })
