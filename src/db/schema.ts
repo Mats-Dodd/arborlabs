@@ -18,9 +18,14 @@ export const updateTodoSchema = createUpdateSchema(todosTable)
 
 // Collections schemas
 export const selectCollectionSchema = createSelectSchema(collections)
-export const createCollectionSchema =
-  createInsertSchema(collections).openapi(`CreateCollection`)
-export const updateCollectionSchema = createUpdateSchema(collections)
+export const createCollectionSchema = createInsertSchema(collections)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .openapi(`CreateCollection`)
+export const updateCollectionSchema = createUpdateSchema(collections).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+})
 
 // Nodes schemas - manually defined to avoid circular reference issues with Uint8Array
 export const selectNodeSchema = z.object({

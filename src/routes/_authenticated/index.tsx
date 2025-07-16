@@ -66,12 +66,12 @@ function App() {
   const addCollection = () => {
     if (newCollectionName.trim()) {
       collectionCollection.insert({
-        id: Math.floor(Math.random() * 100000),
+        id: Math.floor(Math.random() * 1000000), // Temporary ID
         name: newCollectionName.trim(),
         metadata: {},
         user_id: session?.user.id ?? "",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date(), // Temporary timestamp
+        updatedAt: new Date(), // Temporary timestamp
       })
       setNewCollectionName("")
     }
@@ -84,15 +84,15 @@ function App() {
   // Node functions (new)
   const addNodeToCollection = (collectionId: number) => {
     nodeCollection.insert({
-      id: Math.floor(Math.random() * 100000),
+      id: Math.floor(Math.random() * 1000000), // Temporary ID
       name: "New Document",
       kind: "file" as const,
       loroSnapshot: new Uint8Array(),
       parentId: null,
       metadata: {},
       collectionId,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date(), // Temporary timestamp
+      updatedAt: new Date(), // Temporary timestamp
     })
   }
 

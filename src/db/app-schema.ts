@@ -9,6 +9,7 @@ import {
   pgEnum,
   index,
   customType,
+  serial,
 } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
 import { users } from "./auth-schema"
@@ -47,7 +48,7 @@ export const todosTable = pgTable(`todos`, {
 // ---------------------------------------------------------------------------
 
 export const collections = pgTable("collection", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   metadata: jsonb("metadata").notNull(),
   user_id: text("user_id")
@@ -68,7 +69,7 @@ export const collections = pgTable("collection", {
 export const nodes = pgTable(
   "node",
   {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    id: serial("id").primaryKey(),
     name: varchar("name", { length: 255 }).notNull(),
     kind: nodeKindEnum("kind").notNull(),
     loroSnapshot: bytea("loro_snapshot").notNull(),
