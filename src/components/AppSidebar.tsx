@@ -1,7 +1,7 @@
-import { Home, Search, Settings, Upload } from 'lucide-react';
-import { useState } from 'react';
-import { 
-  Sidebar, 
+import { Home, Search, Settings, Upload } from "lucide-react"
+import { useState } from "react"
+import {
+  Sidebar,
   SidebarHeader,
   SidebarContent,
   SidebarGroup,
@@ -11,22 +11,22 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarRail,
-  SidebarFooter
-} from './ui/sidebar';
+  SidebarFooter,
+} from "./ui/sidebar"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog";
-import { Skeleton } from "./ui/skeleton";
-import { useLiveQuery } from "@tanstack/react-db";
-import { todoCollection } from "@/lib/collections";
+} from "./ui/dialog"
+import { Skeleton } from "./ui/skeleton"
+import { useLiveQuery } from "@tanstack/react-db"
+import { todoCollection } from "@/lib/collections"
 
 export function AppSidebar() {
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const { data: todos } = useLiveQuery((q) => q.from({ todoCollection }));
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
+  const { data: todos } = useLiveQuery((q) => q.from({ todoCollection }))
 
   return (
     <>
@@ -83,12 +83,18 @@ export function AppSidebar() {
                         key={todo.id}
                         className="flex items-center gap-2 px-2 py-1 text-sm rounded-md hover:bg-accent/50"
                       >
-                        <div className={`w-2 h-2 rounded-full ${
-                          todo.completed ? 'bg-green-500' : 'bg-yellow-500'
-                        }`} />
-                        <span className={`truncate ${
-                          todo.completed ? 'line-through text-muted-foreground' : ''
-                        }`}>
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            todo.completed ? "bg-green-500" : "bg-yellow-500"
+                          }`}
+                        />
+                        <span
+                          className={`truncate ${
+                            todo.completed
+                              ? "line-through text-muted-foreground"
+                              : ""
+                          }`}
+                        >
                           {todo.text}
                         </span>
                       </div>
@@ -107,7 +113,7 @@ export function AppSidebar() {
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton 
+              <SidebarMenuButton
                 tooltip="Upload"
                 onClick={() => setUploadDialogOpen(true)}
               >
@@ -129,7 +135,8 @@ export function AppSidebar() {
           <DialogHeader>
             <DialogTitle>Upload Files</DialogTitle>
             <DialogDescription>
-              Drag and drop files or click to browse. You can upload multiple files at once.
+              Drag and drop files or click to browse. You can upload multiple
+              files at once.
             </DialogDescription>
           </DialogHeader>
           <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
@@ -141,5 +148,5 @@ export function AppSidebar() {
         </DialogContent>
       </Dialog>
     </>
-  );
-} 
+  )
+}
