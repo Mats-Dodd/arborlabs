@@ -2,7 +2,7 @@ import { createSchemaFactory } from "drizzle-zod"
 import { z } from "@hono/zod-openapi"
 export * from "./auth-schema"
 export * from "./app-schema"
-import { todosTable, collections, nodes } from "./app-schema"
+import { todosTable, collections } from "./app-schema"
 
 const { createInsertSchema, createSelectSchema, createUpdateSchema } =
   createSchemaFactory({ zodInstance: z })
@@ -22,10 +22,39 @@ export const createCollectionSchema =
   createInsertSchema(collections).openapi(`CreateCollection`)
 export const updateCollectionSchema = createUpdateSchema(collections)
 
-// Nodes schemas
-export const selectNodeSchema = createSelectSchema(nodes)
-export const createNodeSchema = createInsertSchema(nodes).openapi(`CreateNode`)
-export const updateNodeSchema = createUpdateSchema(nodes)
+// Nodes schemas - manually defined to avoid circular reference issues with Uint8Array
+export const selectNodeSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  kind: z.enum(["file", "folder"]),
+  loroSnapshot: z.instanceof(Uint8Array),
+  parentId: z.number().nullable(),
+  metadata: z.record(z.any()),
+  collectionId: z.number(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+})
+
+export const createNodeSchema = z
+  .object({
+    name: z.string(),
+    kind: z.enum(["file", "folder"]),
+    loroSnapshot: z.instanceof(Uint8Array).optional(),
+    parentId: z.number().nullable().optional(),
+    metadata: z.record(z.any()),
+    collectionId: z.number(),
+  })
+  .openapi(`CreateNode`)
+
+export const updateNodeSchema = z
+  .object({
+    name: z.string().optional(),
+    kind: z.enum(["file", "folder"]).optional(),
+    loroSnapshot: z.instanceof(Uint8Array).optional(),
+    parentId: z.number().nullable().optional(),
+    metadata: z.record(z.any()).optional(),
+  })
+  .openapi(`UpdateNode`)
 
 // TypeScript types
 export type Todo = z.infer<typeof selectTodoSchema>

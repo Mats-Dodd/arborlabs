@@ -19,7 +19,8 @@ import { users } from "./auth-schema"
 
 // Drizzle doesn't ship a built‑in bytea helper. We declare a minimal custom one
 // so Node.loroSnapshot can stay a true PostgreSQL BYTEA column.
-export const bytea = customType<{ data: Buffer }>({
+// Using Uint8Array for browser compatibility instead of Buffer
+export const bytea = customType<{ data: Uint8Array }>({
   dataType() {
     return "bytea"
   },

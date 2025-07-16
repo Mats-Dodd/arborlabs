@@ -14,6 +14,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import Tiptap from "@/components/editor/editor"
 
+// Browser-compatible utility functions for Uint8Array encoding
+export const encodeSnapshot = (snapshot: Uint8Array): string => {
+  return btoa(String.fromCharCode(...snapshot))
+}
+
+export const decodeSnapshot = (encoded: string): Uint8Array => {
+  return new Uint8Array(
+    atob(encoded)
+      .split("")
+      .map((char) => char.charCodeAt(0))
+  )
+}
+
 export const Route = createFileRoute(`/_authenticated/`)({
   component: App,
   ssr: false,
@@ -74,7 +87,7 @@ function App() {
       id: Math.floor(Math.random() * 100000),
       name: "New Document",
       kind: "file" as const,
-      loroSnapshot: Buffer.from("empty"),
+      loroSnapshot: new Uint8Array(),
       parentId: null,
       metadata: {},
       collectionId,
