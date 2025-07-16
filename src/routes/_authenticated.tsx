@@ -3,7 +3,11 @@ import { useEffect } from "react"
 import { Outlet } from "@tanstack/react-router"
 import { authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/AppSidebar"
 
 export const Route = createFileRoute("/_authenticated")({
