@@ -6,6 +6,7 @@ import { type Todo } from "@/db/schema"
 import { todoCollection } from "@/lib/collections"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import Tiptap from "@/components/editor/editor"
 
 export const Route = createFileRoute(`/_authenticated/`)({
   component: App,
@@ -56,57 +57,73 @@ function App() {
 
   return (
     <div className="p-8">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-          Todo App
-        </h1>
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Todo App Section */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            Todo App
+          </h1>
 
-        <div className="flex gap-2 mb-4">
-          <Input
-            type="text"
-            value={newTodoText}
-            onChange={(e) => setNewTodoText(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addTodo()}
-            placeholder="Add a new todo..."
-          />
-          <Button onClick={addTodo} variant="default">
-            Add
-          </Button>
+          <div className="flex gap-2 mb-4">
+            <Input
+              type="text"
+              value={newTodoText}
+              onChange={(e) => setNewTodoText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addTodo()}
+              placeholder="Add a new todo..."
+            />
+            <Button onClick={addTodo} variant="default">
+              Add
+            </Button>
+          </div>
+
+          <ul className="space-y-2">
+            {todos.map((todo) => (
+              <li
+                key={todo.id}
+                className="flex items-center gap-2 p-2 border border-gray-200 rounded-md"
+              >
+                <input
+                  type="checkbox"
+                  checked={todo.completed}
+                  onChange={() => toggleTodo(todo)}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span
+                  className={`flex-1 ${
+                    todo.completed
+                      ? "line-through text-gray-500"
+                      : "text-gray-800"
+                  }`}
+                >
+                  {todo.text}
+                </span>
+                <Button
+                  onClick={() => deleteTodo(todo.id)}
+                  variant="destructive"
+                >
+                  Delete
+                </Button>
+              </li>
+            ))}
+          </ul>
+
+          {todos.length === 0 && (
+            <p className="text-gray-500 text-center mt-4">
+              No todos yet. Add one above!
+            </p>
+          )}
         </div>
 
-        <ul className="space-y-2">
-          {todos.map((todo) => (
-            <li
-              key={todo.id}
-              className="flex items-center gap-2 p-2 border border-gray-200 rounded-md"
-            >
-              <input
-                type="checkbox"
-                checked={todo.completed}
-                onChange={() => toggleTodo(todo)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <span
-                className={`flex-1 ${
-                  todo.completed
-                    ? "line-through text-gray-500"
-                    : "text-gray-800"
-                }`}
-              >
-                {todo.text}
-              </span>
-              <Button onClick={() => deleteTodo(todo.id)} variant="destructive">
-                Delete
-              </Button>
-            </li>
-          ))}
-        </ul>
-
-        {todos.length === 0 && (
-          <p className="text-gray-500 text-center mt-4">
-            No todos yet. Add one above!
-          </p>
-        )}
+        {/* Editor Section */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            Text Editor
+          </h2>
+          <div className="prose max-w-none">
+            <Tiptap />
+          </div>
+        </div>
       </div>
     </div>
   )
