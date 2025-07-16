@@ -3,6 +3,8 @@ import { useEffect } from "react"
 import { Outlet } from "@tanstack/react-router"
 import { authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/AppSidebar"
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
@@ -34,15 +36,15 @@ function AuthenticatedLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex-shrink-0">
-              <h1 className="text-xl font-semibold text-gray-900">
-                TanStack DB / Electric Starter
-              </h1>
-            </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <div className="flex flex-1 justify-between items-center">
+            <h1 className="text-xl font-semibold text-gray-900">
+              TanStack DB / Electric Starter
+            </h1>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-700">
                 {session.user.email}
@@ -52,11 +54,11 @@ function AuthenticatedLayout() {
               </Button>
             </div>
           </div>
-        </div>
-      </header>
-      <main>
-        <Outlet />
-      </main>
-    </div>
+        </header>
+        <main className="flex-1 overflow-auto">
+          <Outlet />
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }

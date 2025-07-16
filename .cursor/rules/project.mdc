@@ -49,3 +49,7 @@ This command will also report linter errors that were not automatically fixable.
 ## Docs
 - **Electric**: Find the llm.txt for electric documentation in the docs dir in the project root
 - **Tanstack DB**: Find the llm.txt for tanstackdb documentation in the docs dir in the project root
+
+## Components
+
+-** Shadcn**: This project uses shadcn for components, ALWAYS USE THIS
