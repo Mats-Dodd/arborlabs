@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useLiveQuery } from "@tanstack/react-db"
 import { useState } from "react"
 import { authClient } from "@/lib/auth-client"
-import { type Todo } from "@/db/schema"
+// import { type Todo } from "@/db/schema"
 import {
   todoCollection,
   collectionCollection,
@@ -35,11 +35,9 @@ export const Route = createFileRoute(`/_authenticated/`)({
 
 function App() {
   const { data: session } = authClient.useSession()
-  const [newTodoText, setNewTodoText] = useState("")
   const [newCollectionName, setNewCollectionName] = useState("")
 
   // Live queries for all collections
-  const { data: todos } = useLiveQuery((q) => q.from({ todoCollection }))
   const { data: collections } = useLiveQuery((q) =>
     q.from({ collectionCollection })
   )
@@ -50,30 +48,6 @@ function App() {
     allNodes?.filter((node) =>
       collections?.some((collection) => collection.id === node.collectionId)
     ) || []
-
-  // Todo functions (existing)
-  const addTodo = () => {
-    if (newTodoText.trim()) {
-      todoCollection.insert({
-        user_id: session?.user.id ?? "",
-        id: Math.floor(Math.random() * 100000),
-        text: newTodoText.trim(),
-        completed: false,
-        created_at: new Date(),
-      })
-      setNewTodoText("")
-    }
-  }
-
-  const toggleTodo = (todo: Todo) => {
-    todoCollection.update(todo.id, (draft) => {
-      draft.completed = !draft.completed
-    })
-  }
-
-  const deleteTodo = (id: number) => {
-    todoCollection.delete(id)
-  }
 
   // Collection functions (new)
   const addCollection = () => {
@@ -112,50 +86,6 @@ function App() {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
       <h1 className="text-3xl font-bold">Document Management System</h1>
-
-      {/* Todos Section (existing) */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Todo List</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              type="text"
-              placeholder="Add a new todo..."
-              value={newTodoText}
-              onChange={(e) => setNewTodoText(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && addTodo()}
-            />
-            <Button onClick={addTodo}>Add Todo</Button>
-          </div>
-
-          <div className="space-y-2">
-            {todos?.map((todo) => (
-              <div
-                key={todo.id}
-                className="flex items-center gap-2 p-2 border rounded"
-              >
-                <input
-                  type="checkbox"
-                  checked={todo.completed}
-                  onChange={() => toggleTodo(todo)}
-                />
-                <span className={todo.completed ? "line-through" : ""}>
-                  {todo.text}
-                </span>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => deleteTodo(todo.id)}
-                >
-                  Delete
-                </Button>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       <Separator />
 
